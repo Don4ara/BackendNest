@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
@@ -49,7 +49,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Docker Buildx
+      - name: Setup Docker Build
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
@@ -74,7 +74,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64
@@ -88,3 +88,33 @@ jobs:
         id: image
         run: |
           echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Deploy backend to production server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            IMAGE_NAME="${{ needs.build.outputs.image }}"
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
+
+            docker pull $IMAGE_NAME
+
+            docker stop nest_backend || true
+            docker rm nest_backend || true
+
+            docker run -d --name nest_backend \
+              --network app-network \
+              -p 3000:3000 \
+              -e NODE_ENV=production \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              --restart unless-stopped \
+              $IMAGE_NAME
