@@ -13,7 +13,7 @@ COPY . .
 
 RUN npm run build
 
-# --------- STAGE 2: Production ---------
+# --------- STAGE 2: Productionn ---------
 FROM node:slim
 
 WORKDIR /app
