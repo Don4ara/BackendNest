@@ -6,10 +6,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 
-bootstrap()
-  .then(() => {
-    console.log('Application started');
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+void bootstrap();
