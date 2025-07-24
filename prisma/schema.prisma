@@ -22,7 +22,7 @@ model User {
   password  String
   name      String?
   surname   String?
-  isActive  Boolean  @default(true)
+  isStupid    Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
