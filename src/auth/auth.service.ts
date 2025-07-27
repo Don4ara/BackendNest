@@ -14,10 +14,7 @@ export class AuthService {
   private readonly JWT_SECRET: string;
   private readonly JWT_ACCESS_TOKEN_EXPIRES_IN: string;
   private readonly JWT_REFRESH_TOKEN_EXPIRES_IN: string;
-
   private  readonly COOKIE_DOMAIN: string;
-
-
 
   constructor(
     private readonly prisma: PrismaService,
@@ -53,8 +50,6 @@ export class AuthService {
 
     return this.auth(res, user.id);
   }
-
-
   async refresh(req: Request, res: Response) {
     const refreshToken: string = req.cookies['refreshToken'];
 
@@ -81,8 +76,6 @@ export class AuthService {
     return this.auth(res, user.id)
 
   }
-
-
   async logout(res: Response) {
     this.setCookie(res, 'refreshToken', new Date(0));
   }
@@ -148,9 +141,7 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
-
-
-
+  
   private setCookie(res: Response, value: string, expires: Date){
     res.cookie('refreshToken', value, {
       httpOnly: true,
