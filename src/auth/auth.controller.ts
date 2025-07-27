@@ -1,8 +1,10 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { type RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
 import type {Response, Request} from 'express';
+import { AuthGuard } from '../guards/auth.guard';
+import { GetUser } from '../decorators/get-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +31,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@Res({passthrough:true}) res: Response) {
     return await this.authService.logout(res);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@GetUser('id') userId: string) {
+    return this.authService.getProfile(userId);
   }
 
 }
