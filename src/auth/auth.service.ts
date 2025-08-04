@@ -145,10 +145,9 @@ export class AuthService {
   private setCookie(res: Response, value: string, expires: Date){
     res.cookie('refreshToken', value, {
       httpOnly: true,
-      domain: this.COOKIE_DOMAIN,
       expires,
-      secure: !isDev(this.configService),
-      sameSite: isDev(this.configService) ? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
     });
   }
   async getProfile(userId: string) {
